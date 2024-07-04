@@ -1,11 +1,53 @@
+*{
+  margin: 0px;
+  padding: 0px;
+}
 body, html {
   font-size: 16px;
   line-height: 1.5em;
-  width: 100%; }
+  width: 100%;
+ }
+
+ .containerArvore{
+  width: 100%;
+  min-height: 150%;
+  pointer-events: none;
+  position: fixed;
+  top: 0px;
+  background-image: url("../arvore.jpeg") ;
+  background-repeat: no-repeat !important;
+ background-position: center;
+ background-attachment: fixed;
+ background-size: cover;
+ opacity: 0.3;
+ z-index: 1;
+ }
+
+ .form-inline .btn-primary{
+  background-color: rgb(10, 99, 36);
+  border-color: rgb(10, 99, 36) !important;
+  transition: background-color 0.1s ease;
+
+  &:hover{
+    background-color: rgb(18, 155, 59);
+  }
+ }
+
+ 
 
 #main {
-  margin-top: 20px; }
+  z-index: 12;
+  margin-top: 20px; 
+}
+#canvas{
+  position: absolute;
+    z-index: 12;
+    top: 170px;
+}
   #main #inputs {
+    position: absolute;
+    left: 30%;
+    z-index: 12;
     width: 500px;
     margin: auto;
     margin-bottom: 30px;
@@ -28,44 +70,15 @@ body, html {
         height: 30px; }
   #main .node circle {
     fill: #fff;
-    stroke: steelblue;
+    stroke: rgb(10, 99, 36);
     stroke-width: 3px; }
   #main .node text {
     font: 15px sans-serif; }
   #main .link {
     fill: none;
-    stroke: #ccc;
+    stroke: #af6209;
     stroke-width: 2px; }
 
-#popup {
-  width: 400px;
-  height: 350px;
-  display: block;
-  position: fixed;
-  bottom: -350px;
-  right: 0;
-  font-size: 12px;
-  line-height: 1.3em;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background: #fff;
-  transition: 0.2s bottom; }
-  #popup p {
-    margin: 15px 20px; }
-
-.note {
-  display: block;
-  position: fixed;
-  bottom: 2px;
-  right: 6px;
-  text-align: right;
-  font-size: 12px;
-  transition: 0.2s color;
-  z-index: 3; }
-  .note:hover {
-    text-decoration: none; }
-
-#close-this {
-  display: none; }
+  
 
 /*# sourceMappingURL=style.css.map */

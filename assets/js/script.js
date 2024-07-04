@@ -18,8 +18,8 @@ $(function() {
   var bTree, treeData;
 
   // automatically create btree with default settings
-  bTree = BTree(3);
-  $("#order-display").html(3);
+  bTree = BTree(5);
+  $("#order-display").html(5);
   bTree.seed(5);
   var treeData = bTree.toJSON();
   update(treeData);

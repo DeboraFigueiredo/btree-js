@@ -10,6 +10,8 @@ var BTreeNode = function(tree, keys, children, parent){
   return newNode;
 }
 
+
+
 // Traverse tree until we find correct node to insert this value
 // strict=true searches for node containing exact value
 BTreeNode.prototype.traverse = function(value, strict) {

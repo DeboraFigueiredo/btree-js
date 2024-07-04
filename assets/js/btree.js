@@ -1,4 +1,6 @@
 // constructor
+
+
 var BTree = function(order){
   var tree = Object.create(BTree.prototype);
   tree.root = null;
