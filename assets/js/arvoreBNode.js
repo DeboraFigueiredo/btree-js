@@ -1,24 +1,20 @@
-// Construtor do nó BTree
-// Não chame isto diretamente, use BTree::createNode
 var BTreeNode = function(tree, keys, children, parent){
   var newNode = Object.create(BTreeNode.prototype);
-  newNode.tree = tree; // Referência para a árvore à qual este nó pertence
-  newNode.keys = keys || []; // Chaves do nó
-  newNode.children = children || []; // Filhos do nó (arrays fixas são ruins em JS)
-  newNode.parent = parent || null; // Pai do nó
+  newNode.tree = tree; 
+  newNode.keys = keys || []; 
+  newNode.children = children || []; 
+  newNode.parent = parent || null; 
 
   return newNode;
 }
 
-// Percorre a árvore até encontrar o nó correto para inserir este valor
-// strict=true procura o nó contendo o valor exato
 BTreeNode.prototype.traverse = function(value, strict) {
   if (this.keys.indexOf(value) > -1) return this;
   else if (this.isLeaf()) {
     if (strict) return false;
     else return this;
   }
-  else { // Encontra o caminho descendente correto para este valor
+  else { 
     for (var i = 0; i < this.keys.length; i++){
       if (value < this.keys[i]){
         return this.children[i].traverse(value, strict);
@@ -37,18 +33,18 @@ BTreeNode.prototype.insert = function(value){
     return false;
   }
 
-  // Insere o elemento
+ 
   this.keys.push(value);
-  this.keys.sort(function(a, b){ // Ordena os números em ordem crescente
+  this.keys.sort(function(a, b){ 
     if (a > b) return 1;
     else if (a < b) return -1;
     else return 0;
   });
 
-  // Se houver overflow, trata o overflow (sobe)
+  
   if (this.keys.length === this.tree.order) {
     this.handleOverflow();
-  } else { // Se não estiver cheio, começa a anexar os filhos
+  } else { 
     this.attachChildren();
   }
 }
@@ -56,63 +52,54 @@ BTreeNode.prototype.insert = function(value){
 BTreeNode.prototype.handleOverflow = function() {
   tree = this.tree;
 
-  // Encontra o mediano deste nó e divide em 2 novos nós
   median = this.splitMedian();
 
-  // Se não houver pai, cria um vazio e define como raiz
   if (this.isRoot()) {
     tree.root = tree.createNode();
     this.setParent(tree.root);
   }
 
-  // Se o nó é interno, desanexa filhos e adiciona a unattached_nodes
   if (this.isInternal()) this.unattachAllChildren();
 
-  // Remove-se do pai
+ 
   target = this.parent;
   this.unsetParent();
 
-  // Empurra o mediano para cima, incrementa offset
   tree.current_leaf_offset += 1;
   target.insert(median);
 }
 
-// Função para descer e reanexar nós
+
 BTreeNode.prototype.attachChildren = function() {
   var target = this;
   var offset = target.tree.current_leaf_offset - 1;
 
-  // Obtém todos os nós abaixo do nó atual
+  
   var target_nodes = target.tree.unattached_nodes[offset];
 
   if (target_nodes && target_nodes.length > 0) {
-    // Primeiro, coloca todos os nós existentes em target_nodes para que fiquem ordenados corretamente
     target.unattachAllChildren();
 
-    // Em seguida, anexa keys.length+1 filhos a este nó
     for (var i = 0; i <= target.keys.length; i++) {
       target.setChild(target_nodes[0]);
       target.tree.removeUnattached(target_nodes[0], offset);
     }
 
-    // Reduz o offset e repete para cada um dos filhos
     tree.current_leaf_offset -= 1;
     target.children.forEach(function(child) {
       child.attachChildren();
     });
 
-    // Volta para cima para que os níveis superiores possam processar apropriadamente
     tree.current_leaf_offset += 1;
   }
 }
 
-// Função auxiliar para dividir o nó em 2 e retornar o mediano
 BTreeNode.prototype.splitMedian = function() {
   var median_index = parseInt(tree.order / 2);
   var median = this.keys[median_index];
 
   var leftKeys = this.keys.slice(0, median_index);
-  var leftNode = tree.createNode(leftKeys); // Sem filhos ou pai
+  var leftNode = tree.createNode(leftKeys); 
   tree.addUnattached(leftNode, tree.current_leaf_offset);
 
   var rightKeys = this.keys.slice(median_index + 1, this.keys.length);
@@ -174,20 +161,16 @@ BTreeNode.prototype.toJSON = function() {
   }
   return json;
 }
-
-// Funções de deleção
 BTreeNode.prototype.delete = function(value) {
   var nodeToDelete = this.traverse(value, true);
-  if (!nodeToDelete) return false; // Valor não encontrado
+  if (!nodeToDelete) return false; 
 
   var index = nodeToDelete.keys.indexOf(value);
-  if (index === -1) return false; // Valor não encontrado nas chaves
+  if (index === -1) return false;
 
-  // Se o nó é uma folha, simplesmente remove a chave
   if (nodeToDelete.isLeaf()) {
     nodeToDelete.keys.splice(index, 1);
   } else {
-    // Se o nó é um nó interno, substitui a chave pelo predecessor ou sucessor
     var predecessorNode = nodeToDelete.children[index];
     while (!predecessorNode.isLeaf()) {
       predecessorNode = predecessorNode.children[predecessorNode.children.length - 1];
@@ -195,18 +178,16 @@ BTreeNode.prototype.delete = function(value) {
     var predecessorKey = predecessorNode.keys.pop();
     nodeToDelete.keys[index] = predecessorKey;
 
-    // Trata underflow no nó predecessor
     if (predecessorNode.keys.length < Math.ceil(this.tree.order / 2) - 1) {
       this.handleUnderflow(predecessorNode);
     }
   }
 
-  // Trata underflow se necessário
   if (nodeToDelete.keys.length < Math.ceil(this.tree.order / 2) - 1 && !nodeToDelete.isRoot()) {
     this.handleUnderflow(nodeToDelete);
   }
 
-  return true; // Deletado com sucesso
+  return true;
 }
 
 BTreeNode.prototype.handleUnderflow = function(node) {
@@ -274,7 +255,8 @@ BTreeNode.prototype.mergeWithLeftSibling = function(parent, siblingIndex) {
   parent.keys.splice(siblingIndex - 1, 1);
   parent.children.splice(siblingIndex, 1);
 
-  // Se o pai é a raiz e agora não tem chaves, faz o leftSibling a nova raiz
+  //se a raiz da árvore B ficar vazia após uma operação de fusão,
+  // o irmão à esquerda (leftSibling) será promovido para a nova raiz da árvore, e o pai do leftSibling será ajustado para null, indicando que ele é a nova raiz.
   if (parent.isRoot() && parent.keys.length === 0) {
     this.tree.root = leftSibling;
     leftSibling.parent = null;
@@ -298,7 +280,7 @@ BTreeNode.prototype.mergeWithRightSibling = function(parent, siblingIndex) {
   parent.keys.splice(siblingIndex, 1);
   parent.children.splice(siblingIndex + 1, 1);
 
-  // Se o pai é a raiz e agora não tem chaves, faz o node a nova raiz
+  //se o nó parent (que é a raiz atual da árvore) ficar vazio após uma operação de remoção, o nó node será promovido como a nova raiz da árvore.
   if (parent.isRoot() && parent.keys.length === 0) {
     this.tree.root = node;
     node.parent = null;
